@@ -16,8 +16,16 @@ bonus = data['header']['bonus']
 steps = data['header']['steps']
 rides_data = data['rows']
 
+# Parameters
+DENSITY_TOLERANCE = 5 # Defines the size of the boundary when calculating density of an area.
+
+ENDPOINT_DENSITY_MULTIPLIER = 1
+BONUS_DISTANCE_TRADE_OFF_MULTIPLIER = 1
+GRAB_BONUS_MULTIPLIER = 1
+
 rides = []
 vehicles = []
+cur_step = 0
 
 def run():
     for i in range(num_vehicles):
@@ -25,7 +33,7 @@ def run():
         vehicles.append(vehicle)
 
     for i in range(len(rides_data)):
-        ride = Ride(rides_data[i])
+        ride = Ride(rides_data[i], i + 1)
         rides.append(ride)
 
     for i in range(steps):
@@ -38,6 +46,7 @@ def run():
             moves.append(best_move_for_group)
 
         move_vehicles(moves)
+        cur_step += 1 # TODO: This might need to come before
 
     generate_output()
 
@@ -66,21 +75,53 @@ def get_grouped_vehicles():
     # Optimization: Group vehicles by some heuristic probably distance from other vehicle.
 
 def update_ride_heuristics():
-    for(i in range(rides)):
-        # Calculate ride heuristic
+    for ride in rides:
+        endpoint_density = get_ride_density(ride.end_point)
+        distance = get_distance(ride.start_point, ride.end_point)
+        bonus_distance_trade_off = bonus/distance
+        heuristic_val = (10/(ride.earliest_start - cur_step)) * GRAB_BONUS_MULTIPLIER + (endpoint_density * ENDPOINT_DENSITY_MULTIPLIER) + \
+                        (bonus_distance_trade_off * BONUS_DISTANCE_TRADE_OFF_MULTIPLIER)
+        ride.update_value(heuristic_val)
+
+def get_distance(start_point, end_point):
+    return abs(start_point[0] - end_point[0]) + abs(start_point[1] - end_point[1])
+
+def get_ride_density(point):
+    count = 0
+    for ride in rides:
+        dist = get_distance(ride.start_point, point)
+        if dist < DENSITY_TOLERANCE:
+            count += 1
+    return count
 
 def calculate_vehicle_heuristic():
-    for(i in range(vehicles)):
+    for i in range(vehicles):
         # Calculate heuristic of vehicles positions
 
-def move_vehicles():
-    # This will move all the cars in the appropriate directions
-    # If a vehicle takes a ride, store the ride on that vehicle
+def move_vehicles(moves):
+    # Move all the cars
+    for (move in moves):
+        vehicle_id = move.vehicle_id
+        target_position = move.target_position
+        vehicle = vehicles[vehicle_id - 1]
+        vehicle.cur_position = target_position
+        vehicle.end_trip_if_done()
+        take_ride_if_available(vehicle)
+
+def take_ride_if_available(vehicle):
+    for ride in rides:
+        if ride.earliest_start <= cur_step:
+            if ride.take_ride():
+                vehicle.rides_taken.append(ride.id)
+                ride.on_trip = True
+
 
 def generate_output():
     # Loop through all vehicles and output their ride ID's and the number of rides.
+    for (vehicle in vehicles):
+        for(ride in vehicle.rides_taken):
 
-def make_moves(moves):
-    # Move all the cars
+
+
 
 run()

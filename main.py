@@ -1,12 +1,10 @@
-import sys
 import os
+from file_reader import *
 
-inFile = os.path.join('data', 'infile.in')
+header_cols = ['rows', 'cols', 'num_vehicles', 'num_rides', 'bonus', 'steps']
+row_cols = ['x1', 'y1', 'x2', 'y2', 'earliest_start', 'latest_finish']
 
-with open(inFile, 'r') as i:
-	lines = i.readlines()
+data = read_file(os.path.join('data', 'a_example.in'), header_cols, row_cols)
 
 rides = []
 vehicles = []
-
-def get_ride_heuristic():

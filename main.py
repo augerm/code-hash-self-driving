@@ -122,7 +122,7 @@ def take_ride_if_available(vehicle):
 
 def generate_output():
     # Loop through all vehicles and output their ride ID's and the number of rides.
-    f = open("rides.out", "w")
+    f = open("rides.out", "w+")
     output = []
     for (vehicle in vehicles):
         for(ride in vehicles.rides_taken):

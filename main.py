@@ -95,8 +95,12 @@ def get_ride_density(point):
     return count
 
 def calculate_vehicle_heuristic():
-    for i in range(vehicles):
+    for(vehicle in vehicles):
         # Calculate heuristic of vehicles positions
+        # if vehicle.target_position:
+        #     return vehicle.target_position - vehicle.cur_location
+        # if not vehicle.target_position:
+        #     return ride
 
 def move_vehicles(moves):
     # Move all the cars
@@ -118,10 +122,13 @@ def take_ride_if_available(vehicle):
 
 def generate_output():
     # Loop through all vehicles and output their ride ID's and the number of rides.
+    f = open("rides.out", "w")
+    output = []
     for (vehicle in vehicles):
-        for(ride in vehicle.rides_taken):
-
-
-
+        for(ride in vehicles.rides_taken):
+            subject = "rides" if len(ride) else "ride"
+            output.append(vehicle.id+" this vehicle is assigned "+len(ride)+" "+subject+": "+vehicles.rides_taken)
+    f.writelines(output)
+    f.close
 
 run()

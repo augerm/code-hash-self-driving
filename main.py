@@ -58,8 +58,13 @@ def find_best_moves():
 
 
 
-def get_all_possible_moves():
+def get_all_possible_moves(car_groups):
     # Return [{ <vehicle_id>: [1,2], <vehicle_id>: [2,3] }]
+
+    for group in car_groups:
+        for car in group:
+            get_all_possible_moves_one_car()
+
 
     # Look through all vehicles and generate an array of all possible moves.
     # I.e... [1: [1,2], 2: [1,3], 3: [1,5]]
@@ -67,9 +72,58 @@ def get_all_possible_moves():
     # For vehicles that are on a ride take one step closer and don't examine sub-tree.
     # Group vehicles into groups of 5 by distance from each other.
 
+def car_protocol(car):
+    #cardinal direction protocol: 'u': up, 'r': right, 'd': down, 'l':left, 's': stay
+    #if car's row is different than destination row, move on row, else move on column
+    if car.cur_position[0] != car.target_position[0]:
+        #move closer to row
+        if car.cur_position[0] > car.target_position[0]:
+            return 'd'
+        else:
+            return 'u'
+    else:
+        if car.cur_position[1] > car.target_position[1]:
+            return 'l'
+        else:
+            return 'r'
 
+def find_end_position(location, direction):
+    if direction == 'u':
+        next_move = [1,0]
+    elif direction == 'r':
+        next_move = [0,1]
+    elif direction == 'd':
+        next_move = [-1,0]
+    elif direction == 'l':
+        next_move = [0,-1]
+    else:
+        next_move = [0,0]
 
-def get_grouped_vehicles():
+    new_location = location + next_move
+    return new_location
+
+def get_all_possible_moves_one_car(car):
+    if car.target_position is not None:
+        car_protocol()
+    else:
+
+    #retrieves all moves for one specific car
+    # return an array of arrays. i.e. all possible ending positions for one car
+
+def get_grouped_vehicles(numvehicles, vehiclesingroup):
+    groups = []
+    for i in range(numvehicles / vehiclesingroup + 1):
+        this_group = []
+        for j in range(vehiclesingroup):
+            if i * vehiclesingroup + j + 1 <= numvehicles:
+                this_group.append(j + (i * vehiclesingroup) + 1)
+            else:
+                break
+        if len(this_group) != 0:
+            groups.append(this_group)
+
+    return groups
+
     # Return an array of groups of vehicles.
     # Initially group vehicles by ID.
     # Optimization: Group vehicles by some heuristic probably distance from other vehicle.
